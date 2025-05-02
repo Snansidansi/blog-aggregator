@@ -63,3 +63,20 @@ func handlerLogin(s *state, cmd command) error {
 	fmt.Printf("Username set to: %s\n", username)
 	return nil
 }
+
+func handlerGetUsers(s *state, cmd command) error {
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		fmt.Errorf("unable to fetch users: %v", err)
+	}
+
+	for _, user := range users {
+		current := ""
+		if user.Name == s.Config.CurrentUserName {
+			current = " (current)"
+		}
+
+		fmt.Printf("* %s%s\n", user.Name, current)
+	}
+	return nil
+}
