@@ -1,15 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	"github.com/snansidansi/blog-aggregator/internal/config"
+	"github.com/snansidansi/blog-aggregator/internal/database"
 )
 
 type state struct {
 	Config *config.Config
+	db     *database.Queries
 }
 
 func main() {
@@ -17,16 +21,20 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v\n", err)
 	}
-	fmt.Printf("Read config: %+v\n", conf)
 
 	appState := state{
 		Config: &conf,
 	}
 
+	db, err := sql.Open("postgres", appState.Config.DBURL)
+	dbQueries := database.New(db)
+	appState.db = dbQueries
+
 	commands := commands{
 		registeredCommands: map[string]func(*state, command) error{},
 	}
 	commands.Register("login", handlerLogin)
+	commands.Register("register", handlerRegister)
 
 	args := os.Args
 	if len(args) < 2 {
