@@ -67,7 +67,7 @@ func handlerLogin(s *state, cmd command) error {
 func handlerGetUsers(s *state, cmd command) error {
 	users, err := s.db.GetUsers(context.Background())
 	if err != nil {
-		fmt.Errorf("unable to fetch users: %v", err)
+		return fmt.Errorf("unable to fetch users: %v", err)
 	}
 
 	for _, user := range users {

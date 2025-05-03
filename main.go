@@ -38,6 +38,7 @@ func main() {
 	commands.Register("reset", handlerResetDatabase)
 	commands.Register("users", handlerGetUsers)
 	commands.Register("agg", handlerStartAggregator)
+	commands.Register("addfeed", handlerAddFeed)
 
 	args := os.Args
 	if len(args) < 2 {
