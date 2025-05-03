@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -39,6 +38,7 @@ func main() {
 	commands.Register("users", handlerGetUsers)
 	commands.Register("agg", handlerStartAggregator)
 	commands.Register("addfeed", handlerAddFeed)
+	commands.Register("feeds", handlerGetFeeds)
 
 	args := os.Args
 	if len(args) < 2 {
@@ -54,10 +54,4 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	conf, err = config.Read()
-	if err != nil {
-		log.Fatalf("error reading config: %v\n", err)
-	}
-	fmt.Printf("read config after changing current username: %+v\n", conf)
 }
