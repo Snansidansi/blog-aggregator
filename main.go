@@ -32,6 +32,7 @@ func main() {
 	commands := commands{
 		registeredCommands: map[string]func(*state, command) error{},
 	}
+
 	commands.Register("login", handlerLogin)
 	commands.Register("register", handlerRegister)
 	commands.Register("reset", handlerResetDatabase)
@@ -39,6 +40,8 @@ func main() {
 	commands.Register("agg", handlerStartAggregator)
 	commands.Register("addfeed", handlerAddFeed)
 	commands.Register("feeds", handlerGetFeeds)
+	commands.Register("follow", handlerFollowFeed)
+	commands.Register("following", handlerGetFollowedFeeds)
 
 	args := os.Args
 	if len(args) < 2 {
