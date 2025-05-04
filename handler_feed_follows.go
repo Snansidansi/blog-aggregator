@@ -9,14 +9,9 @@ import (
 	"github.com/snansidansi/blog-aggregator/internal/database"
 )
 
-func handlerFollowFeed(s *state, cmd command) error {
+func handlerFollowFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("usage: %s <url>", cmd.name)
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.Config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("unable to get current user: %v", err)
 	}
 
 	url := cmd.args[0]
@@ -47,11 +42,7 @@ func handlerFollowFeed(s *state, cmd command) error {
 	return nil
 }
 
-func handlerGetFollowedFeeds(s *state, cmd command) error {
-	user, err := s.db.GetUser(context.Background(), s.Config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("unable to get current user: %v", err)
-	}
+func handlerGetFollowedFeeds(s *state, cmd command, user database.User) error {
 
 	followedFeeds, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {

@@ -9,13 +9,9 @@ import (
 	"github.com/snansidansi/blog-aggregator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("usage: %s <name> <url>", cmd.name)
-	}
-
-	if s.Config.CurrentUserName == "" {
-		return fmt.Errorf("no user is currently logged in")
 	}
 
 	currentUser, err := s.db.GetUser(context.Background(), s.Config.CurrentUserName)

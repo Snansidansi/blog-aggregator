@@ -38,10 +38,10 @@ func main() {
 	commands.Register("reset", handlerResetDatabase)
 	commands.Register("users", handlerGetUsers)
 	commands.Register("agg", handlerStartAggregator)
-	commands.Register("addfeed", handlerAddFeed)
+	commands.Register("addfeed", middleWareLoggedIn(handlerAddFeed))
 	commands.Register("feeds", handlerGetFeeds)
-	commands.Register("follow", handlerFollowFeed)
-	commands.Register("following", handlerGetFollowedFeeds)
+	commands.Register("follow", middleWareLoggedIn(handlerFollowFeed))
+	commands.Register("following", middleWareLoggedIn(handlerGetFollowedFeeds))
 
 	args := os.Args
 	if len(args) < 2 {
