@@ -11,7 +11,9 @@ A blog aggregator in go that uses a PostgreSQL database.
 ### PostgreSQL Setup
 <details>
 <summary>Installation process for PostgreSQL</summary>
+
 1. Install PostgresSQL v15 or later
+
 Mac:
 `brew install postgresql@15`
 
@@ -25,6 +27,7 @@ sudo apt install postgresql postgresql-contrib
 ```bash
 psql --version
 ```
+
 </details>
 
 3. Start the Postgres server in the background:
