@@ -1,10 +1,10 @@
 # blog-aggregator
-A blog aggregator in go that uses a PostgreSQL database.
+A multi user blog aggregator in go that uses a PostgreSQL database.
 
 # Installation
 
 ## Setup
-- go version 1.23.2 or higher
+- newest version of the [go toolchain](https://go.dev/doc/install)
 - PostgreSQL
 - install blog-aggregator
 
