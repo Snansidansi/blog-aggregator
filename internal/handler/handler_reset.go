@@ -1,16 +1,18 @@
-package main
+package handler
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/snansidansi/blog-aggregator/internal/config"
 )
 
-func handlerResetDatabase(s *state, cmd command) error {
-	if len(cmd.args) != 0 {
+func HandlerResetDatabase(s *config.State, cmd Command) error {
+	if len(cmd.Args) != 0 {
 		return fmt.Errorf("usage: reset")
 	}
 
-	err := s.db.ResetDatabase(context.Background())
+	err := s.Db.ResetDatabase(context.Background())
 	if err != nil {
 		return fmt.Errorf("unable to reset the database: %v: ", err)
 	}

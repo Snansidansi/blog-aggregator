@@ -8,12 +8,8 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/snansidansi/blog-aggregator/internal/config"
 	"github.com/snansidansi/blog-aggregator/internal/database"
+	"github.com/snansidansi/blog-aggregator/internal/handler"
 )
-
-type state struct {
-	Config *config.Config
-	db     *database.Queries
-}
 
 func main() {
 	conf, err := config.Read()
@@ -21,38 +17,38 @@ func main() {
 		log.Fatalf("error reading config: %v\n", err)
 	}
 
-	appState := state{
+	appState := config.State{
 		Config: &conf,
 	}
 
 	db, err := sql.Open("postgres", appState.Config.DBURL)
 	dbQueries := database.New(db)
-	appState.db = dbQueries
+	appState.Db = dbQueries
 
-	commands := commands{
-		registeredCommands: map[string]func(*state, command) error{},
+	commands := handler.Commands{
+		RegisteredCommands: map[string]func(*config.State, handler.Command) error{},
 	}
 
-	commands.Register("login", handlerLogin)
-	commands.Register("register", handlerRegister)
-	commands.Register("reset", handlerResetDatabase)
-	commands.Register("users", handlerGetUsers)
-	commands.Register("agg", handlerStartAggregator)
-	commands.Register("addfeed", middleWareLoggedIn(handlerAddFeed))
-	commands.Register("feeds", handlerGetFeeds)
-	commands.Register("follow", middleWareLoggedIn(handlerFollowFeed))
-	commands.Register("following", middleWareLoggedIn(handlerGetFollowedFeeds))
-	commands.Register("unfollow", middleWareLoggedIn(handlerUnfollowFeed))
-	commands.Register("browse", middleWareLoggedIn(handlerGetPosts))
+	commands.Register("login", handler.HandlerLogin)
+	commands.Register("register", handler.HandlerRegister)
+	commands.Register("reset", handler.HandlerResetDatabase)
+	commands.Register("users", handler.HandlerGetUsers)
+	commands.Register("agg", handler.HandlerStartAggregator)
+	commands.Register("addfeed", handler.MiddleWareLoggedIn(handler.HandlerAddFeed))
+	commands.Register("feeds", handler.HandlerGetFeeds)
+	commands.Register("follow", handler.MiddleWareLoggedIn(handler.HandlerFollowFeed))
+	commands.Register("following", handler.MiddleWareLoggedIn(handler.HandlerGetFollowedFeeds))
+	commands.Register("unfollow", handler.MiddleWareLoggedIn(handler.HandlerUnfollowFeed))
+	commands.Register("browse", handler.MiddleWareLoggedIn(handler.HandlerGetPosts))
 
 	args := os.Args
 	if len(args) < 2 {
 		log.Fatalln("expecting command name")
 	}
 
-	command := command{
-		name: os.Args[1],
-		args: os.Args[2:],
+	command := handler.Command{
+		Name: os.Args[1],
+		Args: os.Args[2:],
 	}
 
 	err = commands.Run(&appState, command)

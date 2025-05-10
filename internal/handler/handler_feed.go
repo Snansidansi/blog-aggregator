@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"context"
@@ -6,15 +6,16 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/snansidansi/blog-aggregator/internal/config"
 	"github.com/snansidansi/blog-aggregator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command, user database.User) error {
-	if len(cmd.args) != 2 {
-		return fmt.Errorf("usage: %s <name> <url>", cmd.name)
+func HandlerAddFeed(s *config.State, cmd Command, user database.User) error {
+	if len(cmd.Args) != 2 {
+		return fmt.Errorf("usage: %s <name> <url>", cmd.Name)
 	}
 
-	currentUser, err := s.db.GetUser(context.Background(), s.Config.CurrentUserName)
+	currentUser, err := s.Db.GetUser(context.Background(), s.Config.CurrentUserName)
 	if err != nil {
 		return fmt.Errorf("failed to fetch current user: %v", err)
 	}
@@ -23,12 +24,12 @@ func handlerAddFeed(s *state, cmd command, user database.User) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		Name:      cmd.args[0],
-		Url:       cmd.args[1],
+		Name:      cmd.Args[0],
+		Url:       cmd.Args[1],
 		UserID:    currentUser.ID,
 	}
 
-	createdFeed, err := s.db.CreateFeed(context.Background(), feed)
+	createdFeed, err := s.Db.CreateFeed(context.Background(), feed)
 	if err != nil {
 		return fmt.Errorf("unable to create new feed: %v", err)
 	}
@@ -45,7 +46,7 @@ func handlerAddFeed(s *state, cmd command, user database.User) error {
 		FeedID:    createdFeed.ID,
 	}
 
-	_, err = s.db.CreateFeedFollow(context.Background(), feedFollow)
+	_, err = s.Db.CreateFeedFollow(context.Background(), feedFollow)
 	if err != nil {
 		return fmt.Errorf("unable to follow the created feed: %v", err)
 	}
@@ -63,8 +64,8 @@ func printFeed(feed database.Feed) {
 	fmt.Printf("* Last fetched at   : %v\n", feed.LastFetchedAt)
 }
 
-func handlerGetFeeds(s *state, cmd command) error {
-	feeds, err := s.db.GetFeeds(context.Background())
+func HandlerGetFeeds(s *config.State, cmd Command) error {
+	feeds, err := s.Db.GetFeeds(context.Background())
 	if err != nil {
 		return fmt.Errorf("unable to get feeds from db: %v", err)
 	}

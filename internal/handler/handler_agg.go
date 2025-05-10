@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"context"
@@ -8,15 +8,17 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/snansidansi/blog-aggregator/internal/config"
 	"github.com/snansidansi/blog-aggregator/internal/database"
+	"github.com/snansidansi/blog-aggregator/internal/service"
 )
 
-func handlerStartAggregator(s *state, cmd command) error {
-	if len(cmd.args) != 1 {
-		return fmt.Errorf("usage: %s <time-between-reqs (e.g. 1s, 1m, 1h, 1h10m, ...)>", cmd.name)
+func HandlerStartAggregator(s *config.State, cmd Command) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %s <time-between-reqs (e.g. 1s, 1m, 1h, 1h10m, ...)>", cmd.Name)
 	}
 
-	timeBetweenReqs, err := time.ParseDuration(cmd.args[0])
+	timeBetweenReqs, err := time.ParseDuration(cmd.Args[0])
 	if err != nil {
 		return fmt.Errorf("invalid duration: %v\nExample durations: 1s, 1m, 1h, 1h10m, ...", err)
 	}
@@ -29,18 +31,18 @@ func handlerStartAggregator(s *state, cmd command) error {
 	}
 }
 
-func scrapeFeeds(s *state) error {
-	nextFeedToFetch, err := s.db.GetNextFeedToFetch(context.Background())
+func scrapeFeeds(s *config.State) error {
+	nextFeedToFetch, err := s.Db.GetNextFeedToFetch(context.Background())
 	if err != nil {
 		return fmt.Errorf("unable to next feed to fetch: %v", err)
 	}
 
-	rssFeed, err := fetchFeed(context.Background(), nextFeedToFetch.Url)
+	rssFeed, err := service.FetchFeed(context.Background(), nextFeedToFetch.Url)
 	if err != nil {
 		return fmt.Errorf("unable to fetch the next feed: %v", err)
 	}
 
-	err = s.db.MarkFeedFetched(context.Background(), nextFeedToFetch.ID)
+	err = s.Db.MarkFeedFetched(context.Background(), nextFeedToFetch.ID)
 	if err != nil {
 		return fmt.Errorf("unable to march next feed as fetched: %v", err)
 	}
@@ -53,7 +55,7 @@ func scrapeFeeds(s *state) error {
 	return nil
 }
 
-func savePostsToDB(s *state, rssFeed *RSSFeed, feedID uuid.UUID) error {
+func savePostsToDB(s *config.State, rssFeed *service.RSSFeed, feedID uuid.UUID) error {
 	for _, post := range rssFeed.Channel.Item {
 		published_at := sql.NullTime{}
 		if t, err := time.Parse(time.RFC1123Z, post.PubDate); err == nil {
@@ -63,7 +65,7 @@ func savePostsToDB(s *state, rssFeed *RSSFeed, feedID uuid.UUID) error {
 			}
 		}
 
-		_, err := s.db.CreatePost(context.Background(), database.CreatePostParams{
+		_, err := s.Db.CreatePost(context.Background(), database.CreatePostParams{
 			ID:          uuid.New(),
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),

@@ -1,25 +1,26 @@
-package main
+package handler
 
 import (
 	"context"
 	"fmt"
 	"strconv"
 
+	"github.com/snansidansi/blog-aggregator/internal/config"
 	"github.com/snansidansi/blog-aggregator/internal/database"
 )
 
-func handlerGetPosts(s *state, cmd command, user database.User) error {
+func HandlerGetPosts(s *config.State, cmd Command, user database.User) error {
 	postLimit := 2
-	if len(cmd.args) == 1 {
-		convertedLimit, err := strconv.Atoi(cmd.args[0])
+	if len(cmd.Args) == 1 {
+		convertedLimit, err := strconv.Atoi(cmd.Args[0])
 		if err != nil {
-			return fmt.Errorf("usage: %s <amount-of-posts>", cmd.name)
+			return fmt.Errorf("usage: %s <amount-of-posts>", cmd.Name)
 		}
 
 		postLimit = convertedLimit
 	}
 
-	posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+	posts, err := s.Db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
 		UserID: user.ID,
 		Limit:  int32(postLimit),
 	})
